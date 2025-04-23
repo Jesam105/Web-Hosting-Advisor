@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hosting Recommendations - Web Hosting Advisor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <div class="header-content">
+                <h1>Web Hosting Advisor</h1>
+                <p>Your personalized hosting recommendations</p>
+            </div>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="container">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="results-header">
+            <h2>Your Hosting Recommendations</h2>
+            <p>Based on your requirements, we've found {{ recommendations|length }} hosting options that match your needs.</p>
+            
+            <div class="requirements-summary">
+                <h3>Your Requirements</h3>
+                <div class="requirements-grid">
+                    <div class="requirement-item">
+                        <span class="label">Budget:</span>
+                        <span class="value">${{ requirements.budget }}/month</span>
+                    </div>
+                    <div class="requirement-item">
+                        <span class="label">Traffic:</span>
+                        <span class="value">{{ requirements.traffic }} visitors/month</span>
+                    </div>
+                    <div class="requirement-item">
+                        <span class="label">Storage:</span>
+                        <span class="value">{{ requirements.storage }} MB</span>
+                    </div>
+                    <div class="requirement-item">
+                        <span class="label">Bandwidth:</span>
+                        <span class="value">{{ requirements.bandwidth }} GB</span>
+                    </div>
+                    <div class="requirement-item">
+                        <span class="label">Reliability:</span>
+                        <span class="value">{{ requirements.reliability }}%</span>
+                    </div>
+                    <div class="requirement-item">
+                        <span class="label">Support:</span>
+                        <span class="value">{{ "Advanced" if requirements.support else "Basic" }}</span>
+                    </div>
+                    <div class="requirement-item full-width">
+                        <span class="label">Tech Stack:</span>
+                        <span class="value">{{ ", ".join(requirements.tech_stack) if requirements.tech_stack else "None specified" }}</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cost-comparison">
+            <h3>Cost Comparison</h3>
+            <div class="chart-container">
+                <img src="{{ url_for('static', filename='charts/' + chart_filename) }}" alt="Cost comparison chart" class="cost-chart">
+            </div>
+        </section>
+
+        <section class="results-section">
+            <h3>Recommended Hosting Plans</h3>
+            
+            {% if recommendations %}
+                <div class="results-filter">
+                    <label for="sort-by">Sort by:</label>
+                    <select id="sort-by">
+                        <option value="match" selected>Best Match</option>
+                        <option value="price-low">Price (Low to High)</option>
+                        <option value="price-high">Price (High to Low)</option>
+                        <option value="reliability">Reliability</option>
+                        <option value="scalability">Scalability</option>
+                    </select>
+                </div>
+                
+                <div class="results-cards">
+                    {% for provider in recommendations %}
+                        <div class="hosting-card" 
+                             data-match="{{ provider.match_score }}"
+                             data-price="{{ provider.price_monthly }}"
+                             data-reliability="{{ provider.reliability }}"
+                             data-scalability="{{ provider.scalability }}">
+                            <div class="match-score">
+                                <div class="score-circle">{{ provider.match_score }}%</div>
+                                <span>Match</span>
+                            </div>
+                            <div class="card-header">
+                                <h4>{{ provider.name }}</h4>
+                                <div class="plan-name">{{ provider.plan_name }}</div>
+                            </div>
+                            <div class="pricing">
+                                <div class="monthly-price">${{ provider.price_monthly }}<span>/month</span></div>
+                                <div class="annual-price">${{ provider.price_annual }}<span>/year</span></div>
+                            </div>
+                            <div class="specs">
+                                <div class="spec-item">
+                                    <span class="label">Storage:</span>
+                                    <span class="value">{{ provider.storage }}</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="label">Bandwidth:</span>
+                                    <span class="value">{{ provider.bandwidth }}</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="label">Reliability:</span>
+                                    <span class="value">{{ provider.reliability }}%</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="label">Scalability:</span>
+                                    <div class="scalability-meter">
+                                        <div class="meter-fill" style="width: {{ provider.scalability * 10 }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="features">
+                                <h5>Features</h5>
+                                <ul>
+                                    {% for feature in provider.features %}
+                                        <li>{{ feature }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="tech-stack">
+                                <h5>Supported Technologies</h5>
+                                <div class="tech-tags">
+                                    {% for tech in provider.tech_stack %}
+                                        <span class="tech-tag">{{ tech }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <a href="#" class="btn primary">Visit Provider</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-results">
+                    <p>No hosting options match your requirements. Please try adjusting your criteria.</p>
+                    <a href="/" class="btn primary">Back to Search</a>
+                </div>
+            {% endif %}
+        </section>
+        
+        <section class="action-buttons">
+            <a href="/" class="btn secondary">Refine Search</a>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2025 Web Hosting Advisor. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
